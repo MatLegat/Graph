@@ -12,7 +12,7 @@ Ações Básicas:
     |                              | implementação                      |               |
     |------------------------------|------------------------------------|---------------|
     | G.adicionaVértice(v)         | $G->createVertex($new_v_label(*))  | O(1)          |
-    | G.removeVértice(v) 	       | $G->removeVertex($v)               | O(n)          |
+    | G.removeVértice(v)           | $G->removeVertex($v)               | O(n)          |
     | G.conecta(v1,v2)             | $G->connect($v1, $v2, $peso(*))    | O(1)          |
     | G.desconecta(v1,v2)          | $G->disconnect($v1, $v2)           | O(1)          |
     | G.ordem -> Inteiro           | $G->getOrder()                     | O(1)          |
