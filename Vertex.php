@@ -139,7 +139,7 @@
             if (!is_a($vertex, 'Vertex'))
                 throw new Exception('$vertex em isSuccesor() deve ser um Vértice');
 
-            return isset($this->_successors[$vertex->getId()]);
+            return array_key_exists($vertex->getId(), $this->_successors);
         }
 
         /*
@@ -150,7 +150,7 @@
             if (!is_a($vertex, 'Vertex'))
                 throw new Exception('$vertex em isPredecessor() deve ser um Vértice');
 
-            return isset($this->_predecessors[$vertex->getId()]);
+            return array_key_exists($vertex->getId(), $this->_predecessors);
         }
 
         /*
@@ -161,7 +161,7 @@
             if (!is_a($vertex, 'Vertex'))
                 throw new Exception('$vertex em isPredecessor() deve ser um Vértice');
 
-            return isset($this->_adjacents[$vertex->getId()]);
+            return array_key_exists($vertex->getId(), $this->_adjacents);
         }
 
         /*
