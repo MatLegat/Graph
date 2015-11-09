@@ -222,6 +222,13 @@
 		}
 
 		/*
+		Retorna array com todas as arestas.
+		*/
+		function getEdges() {
+			return $this->_edges();
+		}
+
+		/*
 		Retorna array com todos os vértices adjacentes aou informado
 		*/
 		function getAdjacents($vertex) {
