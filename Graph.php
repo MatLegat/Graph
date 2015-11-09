@@ -64,7 +64,7 @@
 		function removeVertex($vertex) {
 			// Checa tipos dos parâmetros:
 			if (!is_a($vertex, 'Vertex'))
-					throw new Exception('$vertex em removeVertex() deve ser um Vértice');
+				throw new Exception('$vertex em removeVertex() deve ser um Vértice');
 
 			// Desconecta de todos os sucessores:
 			foreach ($vertex->getSuccessors() as $successor) {
@@ -89,9 +89,9 @@
 			if (!is_int($weight))
 				throw new Exception('$weight em connect() deve ser um inteiro');
 			if (!is_a($vertex_1, 'Vertex'))
-					throw new Exception('$vertex_1 em connect() deve ser um Vértice');
+				throw new Exception('$vertex_1 em connect() deve ser um Vértice');
 			if (!is_a($vertex_2, 'Vertex'))
-					throw new Exception('$vertex_2 em connect() deve ser um Vértice');
+				throw new Exception('$vertex_2 em connect() deve ser um Vértice');
 
 			$edge_id = $this->generateEdgeId($vertex_1, $vertex_2);
 			if (!$this->_is_directed) {
@@ -119,9 +119,9 @@
 		function disconnect($vertex_1, $vertex_2) {
 			// Checa tipos dos parâmetros:
 			if (!is_a($vertex_1, 'Vertex'))
-					throw new Exception('$vertex_1 em disconnect() deve ser um Vértice');
+				throw new Exception('$vertex_1 em disconnect() deve ser um Vértice');
 			if (!is_a($vertex_2, 'Vertex'))
-					throw new Exception('$vertex_2 em disconnect() deve ser um Vértice');
+				throw new Exception('$vertex_2 em disconnect() deve ser um Vértice');
 
 			$edge_id = $this->generateEdgeId($vertex_1, $vertex_2);
 			// Remove do array de arestas do grafo:
@@ -154,9 +154,9 @@
 		function isConnected($vertex_1, $vertex_2) {
 			// Checa tipos dos parâmetros:
 			if (!is_a($vertex_1, 'Vertex'))
-					throw new Exception('$vertex_1 em isConnected() deve ser um Vértice');
+				throw new Exception('$vertex_1 em isConnected() deve ser um Vértice');
 			if (!is_a($vertex_2, 'Vertex'))
-					throw new Exception('$vertex_2 em isConnected() deve ser um Vértice');
+				throw new Exception('$vertex_2 em isConnected() deve ser um Vértice');
 
 			return ($this->getEdge($vertex_1, $vertex_2) != NULL);
 		}
@@ -167,9 +167,9 @@
 		function getEdge($vertex_1, $vertex_2) {
 			// Checa tipos dos parâmetros:
 			if (!is_a($vertex_1, 'Vertex'))
-					throw new Exception('$vertex_1 em getEdge() deve ser um Vértice');
+				throw new Exception('$vertex_1 em getEdge() deve ser um Vértice');
 			if (!is_a($vertex_2, 'Vertex'))
-					throw new Exception('$vertex_2 em getEdge() deve ser um Vértice');
+				throw new Exception('$vertex_2 em getEdge() deve ser um Vértice');
 
 			$edge_id = $this->generateEdgeId($vertex_1, $vertex_2);
 			if ($this->_is_directed) {
@@ -227,7 +227,7 @@
 		function getAdjacents($vertex) {
 			// Checa tipos dos parâmetros:
 			if (!is_a($vertex, 'Vertex'))
-					throw new Exception('$vertex em getAdjacents() deve ser um Vértice');
+				throw new Exception('$vertex em getAdjacents() deve ser um Vértice');
 
 			return $vertex->getAdjacents();
 		}
@@ -245,7 +245,7 @@
 		function getDegree($vertex) {
 			// Checa tipos dos parâmetros:
 			if (!is_a($vertex, 'Vertex'))
-					throw new Exception('$vertex em getDegree() deve ser um Vértice');
+				throw new Exception('$vertex em getDegree() deve ser um Vértice');
 
 			return $vertex->getDegree($this->_is_directed);
 		}
@@ -256,9 +256,9 @@
 		function generateEdgeId($vertex_1, $vertex_2) {
 			// Checa tipos dos parâmetros:
 			if (!is_a($vertex_1, 'Vertex'))
-						throw new Exception('$vertex_2 em generateEdgeId() deve ser um Vértice');
+				throw new Exception('$vertex_2 em generateEdgeId() deve ser um Vértice');
 			if (!is_a($vertex_2, 'Vertex'))
-					throw new Exception('$vertex_1 em generateEdgeId() deve ser um Vértice');
+				throw new Exception('$vertex_1 em generateEdgeId() deve ser um Vértice');
 
 			$vertex_1_id = $vertex_1->getId();
 			$vertex_2_id = $vertex_2->getId();
