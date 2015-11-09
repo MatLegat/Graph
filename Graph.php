@@ -93,14 +93,12 @@
 			if (!is_a($vertex_2, 'Vertex'))
 					throw new Exception('$vertex_2 em connect() deve ser um Vértice');
 
-			$vertex_1_id = $vertex_1->getId();
-			$vertex_2_id = $vertex_2->getId();
-			$edge_id = $vertex_1_id . '#' . $vertex_2_id;
+			$edge_id = $this->generateEdgeId($vertex_1, $vertex_2);
 			if (!$this->_is_directed) {
-				$edge_id2 = $vertex_2_id . '#' . $vertex_1_id;
-				if (array_key_exists($edge_id2 , $this->_edges)) {
+				$edge_id_r = $this->generateEdgeId($vertex_2, $vertex_1);
+				if (array_key_exists($edge_id_r , $this->_edges)) {
 					// Se for orientado e já estão conectados na ordem inversa:
-					$edge_id = $edge_id2;
+					$edge_id = $edge_id_r;
 					// Insere na ordem já inserida (para atualizar peso);
 				}
 			}
@@ -125,17 +123,14 @@
 			if (!is_a($vertex_2, 'Vertex'))
 					throw new Exception('$vertex_2 em disconnect() deve ser um Vértice');
 
-			$vertex_1_id = $vertex_1->getId();
-			$vertex_2_id = $vertex_2->getId();
-			$edge_id = $vertex_1_id . '#' . $vertex_2_id;
+			$edge_id = $this->generateEdgeId($vertex_1, $vertex_2);
 			// Remove do array de arestas do grafo:
 			unset($this->_edges[$edge_id]);
 			if (!$this->_is_directed) {
 				// Se é não orientado e está conectado na ordem inversa:
-				$vertex_2_id = $vertex_2->getId();
-				$edge_id2 = $vertex_2_id . '#' . $vertex_1_id;
 				// Remove a conexão "inversa" do array de arestas do grafo:
-				unset($this->_edges[$edge_id2]);
+				$edge_id_r = $this->generateEdgeId($vertex_2, $vertex_1);
+				unset($this->_edges[$edge_id_r]);
 			} else {
 				// Se é orientado e não está conectado na ordem inversa:
 				if (!$this->isConnected($vertex_2, $vertex_1)) {
@@ -176,9 +171,7 @@
 			if (!is_a($vertex_2, 'Vertex'))
 					throw new Exception('$vertex_2 em getEdge() deve ser um Vértice');
 
-			$vertex_1_id = $vertex_1->getId();
-			$vertex_2_id = $vertex_2->getId();
-			$edge_id = $vertex_1_id . '#' . $vertex_2_id;
+			$edge_id = $this->generateEdgeId($vertex_1, $vertex_2);
 			if ($this->_is_directed) {
 				if (array_key_exists($edge_id , $this->_edges))
 					return $this->_edges[$edge_id];
@@ -187,9 +180,9 @@
 					return $this->_edges[$edge_id];
 				// Se for não orientado, pode ter sido conectado na ordem inversa:
 				} else {
-					$edge_id2 = $vertex_2_id . '#' . $vertex_1_id;
-					if (array_key_exists($edge_id2 , $this->_edges))
-						return $this->_edges[$edge_id2];
+					$edge_id_r = $this->generateEdgeId($vertex_2, $vertex_1);
+					if (array_key_exists($edge_id_r , $this->_edges))
+						return $this->_edges[$edge_id_r];
 				}
 			// Os vértices não estão conectados:
 			}
@@ -255,6 +248,22 @@
 					throw new Exception('$vertex em getDegree() deve ser um Vértice');
 
 			return $vertex->getDegree($this->_is_directed);
+		}
+
+		/*
+		Gera um identificador de aresta de acordo com o id dos vértices.
+		*/
+		function generateEdgeId($vertex_1, $vertex_2) {
+			// Checa tipos dos parâmetros:
+			if (!is_a($vertex_1, 'Vertex'))
+						throw new Exception('$vertex_2 em generateEdgeId() deve ser um Vértice');
+			if (!is_a($vertex_2, 'Vertex'))
+					throw new Exception('$vertex_1 em generateEdgeId() deve ser um Vértice');
+
+			$vertex_1_id = $vertex_1->getId();
+			$vertex_2_id = $vertex_2->getId();
+			return $vertex_1_id . '#' . $vertex_2_id;
+
 		}
 
 		//Faltam funções complexas!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
