@@ -139,7 +139,7 @@
             if (!is_a($vertex, 'Vertex'))
                 throw new Exception('$vertex em isSuccesor() deve ser um Vértice');
 
-            return array_key_exists($vertex->getId(), $this->_successors);
+            return isset($this->_successors[$vertex->getId()]);
         }
 
         /*
@@ -150,7 +150,18 @@
             if (!is_a($vertex, 'Vertex'))
                 throw new Exception('$vertex em isPredecessor() deve ser um Vértice');
 
-            return array_key_exists($vertex->getId(), $this->_predecessors);
+            return isset($this->_predecessors[$vertex->getId()]);
+        }
+
+        /*
+        Informa se um vertice é adjacente deste.
+        */
+        function isAdjacent($vertex) {
+            // Checa tipos dos parâmetros:
+            if (!is_a($vertex, 'Vertex'))
+                throw new Exception('$vertex em isPredecessor() deve ser um Vértice');
+
+            return isset($this->_adjacents[$vertex->getId()]);
         }
 
         /*
