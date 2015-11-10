@@ -29,7 +29,7 @@
         Verifica se o vértice ou aresta possui marca com id informada.
         */
         function hasMark($mark_id) {
-            return array_key_exists($mark_id , $this->_marks);
+            return isset($this->_marks[$mark_id]);
         }
 
     }

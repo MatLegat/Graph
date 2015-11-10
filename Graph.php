@@ -48,9 +48,10 @@
 		*/
 		function createVertex($label = NULL) {
 			$id = $this->_next_id++;
+			$label = (string) $label;
 			$this->_vertexes[$id] = new Vertex($id, $label, $this->_is_directed);
 			if ($label != NULL) {
-				if (array_key_exists($label, $this->_label_mapper))
+				if (isset($this->_label_mapper[$label]))
 					echo "AVISO: Já existe um vértice com o mesmo rótulo. " .
 							"Ao obter um vértice por este rótulo, " .
 							"será retornado o mais recentemente criado.\n";
@@ -65,6 +66,11 @@
 			// Checa tipos dos parâmetros:
 			if (!is_a($vertex, 'Vertex'))
 				throw new Exception('$vertex em removeVertex() deve ser um Vértice');
+
+			if ($this->getOrder() == 1) {
+				// Não pode ter grafo sem vértice
+				return;
+			}
 
 			// Desconecta de todos os sucessores:
 			foreach ($vertex->getSuccessors() as $successor) {
@@ -96,7 +102,7 @@
 			$edge_id = $this->generateEdgeId($vertex_1, $vertex_2);
 			if (!$this->_is_directed) {
 				$edge_id_r = $this->generateEdgeId($vertex_2, $vertex_1);
-				if (array_key_exists($edge_id_r , $this->_edges)) {
+				if (isset($this->_edges[$edge_id])) {
 					// Se for orientado e já estão conectados na ordem inversa:
 					$edge_id = $edge_id_r;
 					// Insere na ordem já inserida (para atualizar peso);
@@ -133,7 +139,7 @@
 				unset($this->_edges[$edge_id_r]);
 			} else {
 				// Se é orientado e não está conectado na ordem inversa:
-				if (!$this->isConnected($vertex_2, $vertex_1)) {
+				if (!$this->hasEdge($vertex_2, $vertex_1)) {
 					// Remove 1 do array de adjacentes de 2, e vice versa:
 					$vertex_1->removeAdjacent($vertex_2);
 					$vertex_2->removeAdjacent($vertex_1);
@@ -151,12 +157,12 @@
 		Informa se dois vértices estão conectados, ou seja, se existe uma aresta
 		entre eles (no sentido informado, caso o grafo seja orientado).
 		*/
-		function isConnected($vertex_1, $vertex_2) {
+		function hasEdge($vertex_1, $vertex_2) {
 			// Checa tipos dos parâmetros:
 			if (!is_a($vertex_1, 'Vertex'))
-				throw new Exception('$vertex_1 em isConnected() deve ser um Vértice');
+				throw new Exception('$vertex_1 em hasEdge() deve ser um Vértice');
 			if (!is_a($vertex_2, 'Vertex'))
-				throw new Exception('$vertex_2 em isConnected() deve ser um Vértice');
+				throw new Exception('$vertex_2 em hasEdge() deve ser um Vértice');
 
 			return ($this->getEdge($vertex_1, $vertex_2) != NULL);
 		}
@@ -173,31 +179,36 @@
 
 			$edge_id = $this->generateEdgeId($vertex_1, $vertex_2);
 			if ($this->_is_directed) {
-				if (array_key_exists($edge_id , $this->_edges))
+				if (isset($this->_edges[$edge_id]))
 					return $this->_edges[$edge_id];
 			} else {
-				if (array_key_exists($edge_id , $this->_edges)) {
+				if (isset($this->_edges[$edge_id])) {
 					return $this->_edges[$edge_id];
 				// Se for não orientado, pode ter sido conectado na ordem inversa:
 				} else {
 					$edge_id_r = $this->generateEdgeId($vertex_2, $vertex_1);
-					if (array_key_exists($edge_id_r , $this->_edges))
+					if (isset($this->_edges[$edge_id_r]))
 						return $this->_edges[$edge_id_r];
 				}
-			// Os vértices não estão conectados:
 			}
+			// Os vértices não estão conectados:
 			return NULL;
 		}
 
 		/*
-		Retorna vértice com a id informada.
+		Retorna vértice com a id informada,
+		ou um qualquer quando não informada uma id.
 		*/
-		function getVertexById($vertex_id) {
+		function getVertexById($vertex_id = -1) {
 			// Checa tipos dos parâmetros:
 			if (!is_int($vertex_id))
 				throw new Exception('$vertex_id em getVertexById() deve ser um inteiro');
 
-			return $this->_vertexes[$vertex_id];
+			// Se não foi informada id
+			if ($vertex_id == -1)
+				return  current($this->_vertexes);
+			else
+				return $this->_vertexes[$vertex_id];
 		}
 
 		/*
@@ -266,7 +277,128 @@
 
 		}
 
-		//Faltam funções complexas!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		/*
+		Verifica se o grafo é regular.
+		*/
+		function isRegular() {
+			$previous_degree = NULL;
+			// Para cada vértice do grafo:
+			foreach ($this->_vertexes as $vertex) {
+				// Primeira iteração:
+				if ($previous_degree == NULL) {
+					$previous_degree = $this->getDegree($vertex);
+				} else {
+					//Se for diferente do anterior, retorna falso:
+					if ($this->getDegree($vertex) != $previous_degree)
+						return false;
+				}
+			}
+			return true;
+		}
+
+		/*
+		Verifica se o grafo é completo.
+		*/
+		function isComplete() {
+			$order = $this->getOrder();
+			// Para cada vértice do grafo:
+			foreach ($this->_vertexes as $vertex) {
+				$array = $vertex->getAdjacents();
+				$array[$vertex->getId()] = $vertex;
+				// $array possui todos os adjacentes e o próprio vértice
+				if (count($array) != $order) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		/*
+		Retorna fecho transitivo do vértice.
+		*/
+		function transitiveClosure($vertex) {
+			// Checa tipos dos parâmetros:
+			if (!is_a($vertex, 'Vertex'))
+				throw new Exception('$vertex em transitiveClosure() deve ser um Vértice');
+
+			return $this->transitiveClosureAux($v, array(), true);
+		}
+
+		/*
+		Auxilia na busca do fecho transitivo do vértice.
+		*/
+		private function transitiveClosureAux($vertex, $visited_vertexes, $is_first = false) {
+			if (!$is_first) {
+				// Adiciona ao array de visitados
+				$visited_vertexes[$vertex->getId()] = $vertex;
+			}
+			// Para cada sucessor do vértice atual:
+			foreach ($vertex->getSuccessors() as $successor_id => $successor) {
+				// Se não foi visitado:
+				if (!isset($visited_vertexes[$successor_id])) {
+					$visited_vertexes = $this->
+							transitiveClosureAux($successor, $visited_vertexes);
+				}
+			}
+			return $visited_vertexes;
+		}
+
+		/*
+		Informa se o grafo é conexo.
+		*/
+		function isConnected() {
+			$any_vertex = $this->getVertexById();
+			$any_vertex_transitive_closure = transitiveClosure($any_vertex);
+			if ($this->getOrder() == count($any_vertex_transitive_closure))
+				return true;
+			else
+				return false;
+		}
+
+		/*
+		Informa se o grafo é uma árvore.
+		*/
+		function isTree() {
+			$any_vertex = $this->getVertexById();
+			$this->isTreeAux($any_vertex, $any_vertex);
+		}
+
+		/*
+		Auxilia a verificar se é uma árvore
+		*/
+		private function isTreeAux($actual_vertex, $previous_vertex, $visited_vertexes) {
+			$is_first_iteration = ($actual_vertex->getId() == $previous_vertex->getId());
+			if ($is_first_iteration && hasEdge($actual_vertex, $previous_vertex)) {
+					// Se primeira iteração e tem laço no vértice inicial:
+					return false;
+				}
+			$visited_vertexes[$actual_vertex->getId()] = $actual_vertex;
+			// Para cada sucessor do vértice atual:
+			foreach ($actual_vertex->getSuccessors() as $successor_id => $successor) {
+				if ($successor_id == $previous_vertex->getId && !$this->_is_directed) {
+					// Se é o vértice anterior e é não orientado:
+					// Pula para próxima iteração:
+					continue;
+				} else if (!isset($visited_vertexes[$successor_id])) {
+					// Se não foi visitado:
+					$visited_vertexes = $this->
+							findTransitiveClosure($successor, $actual_vertex, $visited_vertexes);
+				} else {
+					// Se já foi visitado, encontrou ciclo, então não é árvore:
+					return false;
+				}
+			}
+			if (!$is_first_iteration) {
+				return $visited_vertexes;
+			} else {
+				if (count($visited_vertexes) == $this->getOrder())
+					// Se é conexo
+					return true;
+				else
+					// Se é desconexo, não é uma árvore
+					return false;
+			}
+		}
 
 	}
 

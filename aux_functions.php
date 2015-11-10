@@ -31,7 +31,7 @@
             $graph->getVertexByLabel('ORANGE')->mark("TAG 1");
             $graph->connect($graph->getVertexById(3), $graph->getVertexById(0));
             $graph->disconnect($graph->getVertexById(0), $graph->getVertexByLabel('POTATO'));
-            var_dump($graph->isConnected($graph->getVertexById(3), $graph->getVertexById(0)));
+            var_dump($graph->hasEdge($graph->getVertexById(3), $graph->getVertexById(0)));
             // var_dump($graph->getEdge($graph->getVertexById(2), $graph->getVertexById(3)));
             if ($k == 2) {
                 $graph->removeVertex($graph->getVertexById(3));
