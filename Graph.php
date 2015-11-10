@@ -16,6 +16,7 @@
 	Chamadas dos testes:
 	*/
 	test1();
+	test2();
 
 	class Graph {
 
@@ -204,9 +205,9 @@
 			if (!is_int($vertex_id))
 				throw new Exception('$vertex_id em getVertexById() deve ser um inteiro');
 
-			// Se não foi informada id
+			// Se não foi informada id, retorna um qualquer
 			if ($vertex_id == -1)
-				return  current($this->_vertexes);
+				return reset($this->_vertexes);
 			else
 				return $this->_vertexes[$vertex_id];
 		}
@@ -222,18 +223,25 @@
 		Retorna array com todos os vértices.
 		*/
 		function getVertexes() {
-			return $this->_vertexes();
+			return $this->_vertexes;
 		}
 
 		/*
 		Retorna array com todas as arestas.
 		*/
 		function getEdges() {
-			return $this->_edges();
+			return $this->_edges;
 		}
 
 		/*
-		Retorna array com todos os vértices adjacentes aou informado
+		Informa se o grafo pe orientado.
+		*/
+		function isDirected(){
+			return $this->_is_directed;
+		}
+
+		/*
+		Retorna array com todos os vértices adjacentes ao informado
 		*/
 		function getAdjacents($vertex) {
 			// Checa tipos dos parâmetros:
@@ -278,7 +286,8 @@
 		}
 
 		/*
-		Verifica se o grafo é regular.
+		Verifica se o grafo é regular, ou seja,
+		se todos os vértices possuem o mesmo grau.
 		*/
 		function isRegular() {
 			$previous_degree = NULL;
@@ -297,7 +306,8 @@
 		}
 
 		/*
-		Verifica se o grafo é completo.
+		Verifica se o grafo é completo, ou seja,
+		se cada vértice de G está conectado a todos os outros vértices.
 		*/
 		function isComplete() {
 			$order = $this->getOrder();
@@ -314,14 +324,16 @@
 		}
 
 		/*
-		Retorna fecho transitivo do vértice.
+		Retorna fecho transitivo do vértice, ou seja,
+		um conjunto contendo todos os vértices que são transitivamente
+		alcancáveis partindo-se do vértice.
 		*/
 		function transitiveClosure($vertex) {
 			// Checa tipos dos parâmetros:
 			if (!is_a($vertex, 'Vertex'))
 				throw new Exception('$vertex em transitiveClosure() deve ser um Vértice');
 
-			return $this->transitiveClosureAux($v, array(), true);
+			return $this->transitiveClosureAux($vertex, array(), true);
 		}
 
 		/*
@@ -344,12 +356,15 @@
 		}
 
 		/*
-		Informa se o grafo é conexo.
+		Informa se o grafo é conexo, ou seja,
+		se existe pelo menos um caminho ntre cada par de vértices.
 		*/
 		function isConnected() {
 			$any_vertex = $this->getVertexById();
-			$any_vertex_transitive_closure = transitiveClosure($any_vertex);
-			if ($this->getOrder() == count($any_vertex_transitive_closure))
+			$array = $this->transitiveClosure($any_vertex);
+			$array[$any_vertex->getId()] = $any_vertex;
+			// $array possui o fecho transitivo e o próprio vértice
+			if ($this->getOrder() == count($array))
 				return true;
 			else
 				return false;
@@ -360,44 +375,30 @@
 		*/
 		function isTree() {
 			$any_vertex = $this->getVertexById();
-			$this->isTreeAux($any_vertex, $any_vertex);
+			if ($this->hasEdge($any_vertex, $any_vertex))
+				return false;
+			else
+				return $this->isConnected() && !$this->hasCicle($any_vertex, $any_vertex, array());
 		}
 
 		/*
-		Auxilia a verificar se é uma árvore
+		Verifica se há ciclos no grafo;
 		*/
-		private function isTreeAux($actual_vertex, $previous_vertex, $visited_vertexes) {
-			$is_first_iteration = ($actual_vertex->getId() == $previous_vertex->getId());
-			if ($is_first_iteration && hasEdge($actual_vertex, $previous_vertex)) {
-					// Se primeira iteração e tem laço no vértice inicial:
-					return false;
-				}
+		private function hasCicle($actual_vertex, $previous_vertex, $visited_vertexes) {
+			if (isset($visited_vertexes[$actual_vertex->getId()]))
+				return true;
 			$visited_vertexes[$actual_vertex->getId()] = $actual_vertex;
 			// Para cada sucessor do vértice atual:
 			foreach ($actual_vertex->getSuccessors() as $successor_id => $successor) {
-				if ($successor_id == $previous_vertex->getId && !$this->_is_directed) {
+				if ($successor_id == $previous_vertex->getId() && !$this->_is_directed) {
 					// Se é o vértice anterior e é não orientado:
 					// Pula para próxima iteração:
 					continue;
-				} else if (!isset($visited_vertexes[$successor_id])) {
-					// Se não foi visitado:
-					$visited_vertexes = $this->
-							findTransitiveClosure($successor, $actual_vertex, $visited_vertexes);
 				} else {
-					// Se já foi visitado, encontrou ciclo, então não é árvore:
-					return false;
+					return $this->hasCicle($successor, $actual_vertex, $visited_vertexes);
 				}
 			}
-			if (!$is_first_iteration) {
-				return $visited_vertexes;
-			} else {
-				if (count($visited_vertexes) == $this->getOrder())
-					// Se é conexo
-					return true;
-				else
-					// Se é desconexo, não é uma árvore
-					return false;
-			}
+			return false;
 		}
 
 	}
