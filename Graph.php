@@ -103,8 +103,8 @@
 			$edge_id = $this->generateEdgeId($vertex_1, $vertex_2);
 			if (!$this->_is_directed) {
 				$edge_id_r = $this->generateEdgeId($vertex_2, $vertex_1);
-				if (isset($this->_edges[$edge_id])) {
-					// Se for orientado e já estão conectados na ordem inversa:
+				if (isset($this->_edges[$edge_id_r])) {
+					// Se não for orientado e já estão conectados na ordem inversa:
 					$edge_id = $edge_id_r;
 					// Insere na ordem já inserida (para atualizar peso);
 				}
@@ -290,11 +290,11 @@
 		se todos os vértices possuem o mesmo grau.
 		*/
 		function isRegular() {
-			$previous_degree = NULL;
+			$previous_degree = -1;
 			// Para cada vértice do grafo:
 			foreach ($this->_vertexes as $vertex) {
 				// Primeira iteração:
-				if ($previous_degree == NULL) {
+				if ($previous_degree == -1) {
 					$previous_degree = $this->getDegree($vertex);
 				} else {
 					//Se for diferente do anterior, retorna falso:
@@ -357,7 +357,7 @@
 
 		/*
 		Informa se o grafo é conexo, ou seja,
-		se existe pelo menos um caminho ntre cada par de vértices.
+		se existe pelo menos um caminho entre cada par de vértices.
 		*/
 		function isConnected() {
 			$any_vertex = $this->getVertexById();

@@ -31,9 +31,10 @@
             $this->_label = $label;
             // Se o grafo é não orientado,
             // adjacentes, antecessores e sucessores são o mesmo:
-            if (!$is_directed)
+            if (!$is_directed) {
                 $this->_successors = &$this->_adjacents;  // Mesmo endereço.
                 $this->_predecessors = &$this->_adjacents;  // Mesmo endereço.
+            }
         }
 
         /*
@@ -90,7 +91,7 @@
         /*
         Remove um vértice do array de antecessores deste vértice.
         */
-        function removePredecesor($vertex) {
+        function removePredecesor(&$vertex) {
             // Checa tipos dos parâmetros:
             if (!is_a($vertex, 'Vertex'))
                 throw new Exception('$vertex em removePredecesor() deve ser um Vértice');
@@ -101,7 +102,7 @@
         /*
         Remove um vértice do array de adjacentes deste vértice.
         */
-        function removeAdjacent($vertex) {
+        function removeAdjacent(&$vertex) {
             // Checa tipos dos parâmetros:
             if (!is_a($vertex, 'Vertex'))
                 throw new Exception('$vertex em removePredecesor() deve ser um Vértice');
@@ -134,7 +135,7 @@
         /*
         Informa se um vertice é sucessor deste.
         */
-        function isSuccessor($vertex) {
+        function isSuccessor(&$vertex) {
             // Checa tipos dos parâmetros:
             if (!is_a($vertex, 'Vertex'))
                 throw new Exception('$vertex em isSuccesor() deve ser um Vértice');
@@ -145,7 +146,7 @@
         /*
         Informa se um vertice é antecessor deste.
         */
-        function isPredecessor($vertex) {
+        function isPredecessor(&$vertex) {
             // Checa tipos dos parâmetros:
             if (!is_a($vertex, 'Vertex'))
                 throw new Exception('$vertex em isPredecessor() deve ser um Vértice');
@@ -156,7 +157,7 @@
         /*
         Informa se um vertice é adjacente deste.
         */
-        function isAdjacent($vertex) {
+        function isAdjacent(&$vertex) {
             // Checa tipos dos parâmetros:
             if (!is_a($vertex, 'Vertex'))
                 throw new Exception('$vertex em isPredecessor() deve ser um Vértice');
@@ -168,10 +169,14 @@
         Informa grau do vértice.
         */
         function getDegree($is_directed) {
-            if ($is_directed)
+            if ($is_directed) {
                 return $this->getEmissionDegree() + $this->getReceptionDegree();
-            else
-                return $this->getEmissionDegree();
+            } else {
+                $degree = $this->getEmissionDegree();
+                if (isset($this->_adjacents[$this->_id]))
+                    $degree++;
+                return $degree;
+            }
         }
 
         /*
